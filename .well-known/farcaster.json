@@ -1,0 +1,14 @@
+{
+  "accountAssociation": {},
+  "frame": {
+    "version": "1",
+    "name": "snapshot",
+    "iconUrl": "https://nft-arb-base-miniapp.vercel.app/icon.png",
+    "homeUrl": "https://nft-arb-base-miniapp.vercel.app",
+    "imageUrl": "https://nft-arb-base-miniapp.vercel.app/image.png",
+    "buttonTitle": "",
+    "splashImageUrl": "https://nft-arb-base-miniapp.vercel.app/splash.png",
+    "splashBackgroundColor": "#111111",
+    "webhookUrl": ""
+  }
+}
