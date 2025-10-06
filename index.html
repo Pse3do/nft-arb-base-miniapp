@@ -436,7 +436,22 @@
     import { arbitrum, base } from 'https://esm.sh/@wagmi/core/chains';
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
 
-    sdk.actions.ready({ disableNativeGestures: true });
+     sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+      console.log("Farcaster MiniApp ready");
+      message.innerText = "Ready to connect!";
+      
+      // Show rules on first visit
+      const hasSeenRules = localStorage.getItem('hasSeenRules');
+      if (!hasSeenRules) {
+        setTimeout(() => {
+          document.getElementById('rulesOverlay').classList.remove('hidden');
+        }, 300);
+      }
+    }).catch(err => {
+      console.error("SDK ready error:", err);
+      message.innerText = "SDK initialization failed";
+      showToast("Failed to initialize. Try reloading.");
+    });
 
     // Contract addresses
     const CONTRACTS = {
