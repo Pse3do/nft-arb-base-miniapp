@@ -11,6 +11,10 @@
     "subtitle": "Connect and share instantly",
     "description": "Store your memory permanently onchain.",
     "primaryCategory": "social"
+  }, "accountAssociation": {
+    "header": "eyJmaWQiOjIyNzU1NCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweEM3RUVBOWJCM0VBNTRBYkEwNjViQjc1ZDE4NERiNzBCYmE4MTNjNzIifQ",
+    "payload": "eyJkb21haW4iOiJuZnQtYXJiLWJhc2UtbWluaWFwcC52ZXJjZWwuYXBwIn0",
+    "signature": "MHhiNmYzMzBlYjZjODJlNDU0N2Y3NDA0NDQ0YWIxY2UzNGIwNGMwMDM4YmUyYWQzMWUxNmNlZjFkMWNiNGQzOGI5NzgxNmEzODg2ZTA1ZjM0ODM2OGM4OGFjOGE0ZDZlZDFhNTY3MjliYzQwYzE2NTJlMTI1NmVmODY5ODcwMzczNzFj"
   }
 
 }
