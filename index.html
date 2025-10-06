@@ -411,7 +411,7 @@
 
   <script type="module">
     import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-    
+    import { sdk } from '@farcaster/miniapp-sdk'
     import {
       createConfig, connect, switchChain, writeContract, getAccount, http
     } from 'https://esm.sh/@wagmi/core';
@@ -499,8 +499,8 @@
         showStatus('Failed to initialize. Please reopen in Warpcast.', 'error');
       });
 
+      
     await sdk.actions.addMiniApp()
-
     chooseFileBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       fileInput.click();
