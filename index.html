@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=390, initial-scale=1.0" />
+  <title>NFT Minter</title>
+
+  <!-- Farcaster Mini App Metadata -->
+  <meta name="fc:miniapp" content='{
+    "version":"1",
+    "imageUrl":"https://your-domain.vercel.app/image.png",
+    "button":{
+      "title":"Mint Your NFT",
+      "action":{
+        "type":"launch_frame",
+        "name":"NFT Minter",
+        "url":"https://your-domain.vercel.app",
+        "splashImageUrl":"https://your-domain.vercel.app/splash.png",
+        "splashBackgroundColor":"#0052FF"
+      }
+    }
+  }' />
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      max-width: 390px;
+      margin-inline: auto;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 360px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .subtitle {
+      text-align: center;
+      opacity: 0.9;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .upload-section {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upload-section.dragover {
+      border-color: #4ade80;
+      background: rgba(74, 222, 128, 0.1);
+    }
+
+    .upload-section.has-image {
+      border-style: solid;
+      border-color: #4ade80;
+    }
+
+    #imagePreview {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    #imagePreview.show {
+      display: block;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .upload-text {
+      font-size: 16px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .upload-hint {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+
+    .nft-name-input {
+      width: 100%;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      margin-bottom: 20px;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .nft-name-input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .nft-name-input:focus {
+      border-color: #4ade80;
+    }
+
+    .chain-selector {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .chain-btn {
+      flex: 1;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chain-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .chain-btn.selected {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #4ade80;
+      box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+    }
+
+    .mint-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(74, 222, 128, 0.4);
+    }
+
+    .mint-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(74, 222, 128, 0.6);
+    }
+
+    .mint-btn:disabled {
+      background: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.5);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.loading {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .status.success {
+      background: rgba(74, 222, 128, 0.2);
+      border: 1px solid rgba(74, 222, 128, 0.4);
+    }
+
+    .status.error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .status a {
+      color: #4ade80;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    .loader {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #fff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .info-box {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 20px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .change-image-btn {
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .change-image-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 NFT Minter</h1>
+    <p class="subtitle">Drag & drop your image to mint as NFT</p>
+
+    <!-- Upload Section -->
+    <div class="upload-section" id="uploadSection">
+      <div id="uploadPrompt">
+        <div class="upload-icon">📸</div>
+        <div class="upload-text">Drag & Drop Image Here</div>
+        <div class="upload-hint">or paste from clipboard</div>
+        <button class="change-image-btn" id="chooseFileBtn" style="display:block; margin-top:12px;">Choose from Gallery</button>
+      </div>
+      <img id="imagePreview" alt="Preview" />
+      <button class="change-image-btn" id="changeImageBtn" style="display:none;">Change Image</button>
+      <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+    </div>
+
+    <!-- NFT Name Input -->
+    <input 
+      type="text" 
+      id="nftName" 
+      class="nft-name-input" 
+      placeholder="NFT Name (optional)"
+    />
+
+    <!-- Chain Selector -->
+    <div class="chain-selector">
+      <button class="chain-btn" id="baseBtn" data-chain="base">
+        <div style="font-size: 24px;">🔵</div>
+        <div>Base</div>
+      </button>
+      <button class="chain-btn" id="arbBtn" data-chain="arbitrum">
+        <div style="font-size: 24px;">🔷</div>
+        <div>Arbitrum</div>
+      </button>
+    </div>
+
+    <!-- Mint Button -->
+    <button class="mint-btn" id="mintBtn" disabled>
+      Select Image & Chain to Mint
+    </button>
+
+    <!-- Status -->
+    <div class="status" id="status"></div>
+
+    <!-- Info Box -->
+    <div class="info-box">
+      💡 <strong>How it works:</strong><br>
+      1. Drag & drop or paste your image<br>
+      2. Choose Base or Arbitrum<br>
+      3. Click Mint (FREE - no gas fees paid by you!)<br>
+      Your image will be stored on IPFS via Pinata
+    </div>
+  </div>
+
+  <script type="module">
+    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+    import {
+      createConfig, connect, switchChain, writeContract, getAccount, http
+    } from 'https://esm.sh/@wagmi/core';
+    import { arbitrum, base } from 'https://esm.sh/@wagmi/core/chains';
+    import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
+
+    sdk.actions.ready({ disableNativeGestures: true });
+
+    // Contract addresses
+    const CONTRACTS = {
+      base: '0x23Bbf3b4782A9Feac435F811b91E58BBcF7cC774',
+      arbitrum: '0x4CFEFB86cb8Aa8dB67b9b2A8083647e4480f086d'
+    };
+
+    // Simplified ERC721 ABI - just the mint function (payable but price is 0)
+    const NFT_ABI = [
+      {
+        "inputs": [{"internalType": "string", "name": "tokenURI_", "type": "string"}],
+        "name": "mint",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "payable",
+        "type": "function"
+      }
+    ];
+
+    // ===== PINATA CONFIGURATION =====
+    // Replace with your Pinata JWT token from https://app.pinata.cloud/keys
+    const PINATA_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI4MTIzZjk3ZC1kMjA0LTQwYTctYTQ2Yy1iMTQzOTUzZDY4OWEiLCJlbWFpbCI6ImFpYnM4ODhAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjQ5NTUyODliODkzMWI0NzI1MzZiIiwic2NvcGVkS2V5U2VjcmV0IjoiYmQ5ZDkxMjc0ZGE4YWRjYTA2NGE5NWVlOWZhMDZhY2ZhMjNmMzU4ZDM0ZDI0ZjM3ZWExMTVjODBjNGNjYWU0YiIsImV4cCI6MTc5MTI2Mjg0N30.qU3rbH0HBkdDGC9mp_B6GLhJGovpnkRrtqStnmkyZtE';
+
+    // Wagmi config
+    const config = createConfig({
+      chains: [arbitrum, base],
+      transports: { [arbitrum.id]: http(), [base.id]: http() }
+    });
+    await connect(config, { connector: farcasterMiniApp() }).catch(() => {});
+
+    // UI Elements
+    const uploadSection = document.getElementById('uploadSection');
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const imagePreview = document.getElementById('imagePreview');
+    const changeImageBtn = document.getElementById('changeImageBtn');
+    const chooseFileBtn = document.getElementById('chooseFileBtn');
+    const fileInput = document.getElementById('fileInput');
+    const nftNameInput = document.getElementById('nftName');
+    const baseBtn = document.getElementById('baseBtn');
+    const arbBtn = document.getElementById('arbBtn');
+    const mintBtn = document.getElementById('mintBtn');
+    const statusDiv = document.getElementById('status');
+
+    let selectedFile = null;
+    let selectedChain = null;
+
+    // Gallery/File picker button
+    chooseFileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+
+    // Handle file input from gallery
+    fileInput.addEventListener('change', (e) => {
+      const files = e.target.files;
+      if (files.length > 0) {
+        handleFiles(files);
+      }
+    });
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      uploadSection.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    // Highlight drop area
+    ['dragenter', 'dragover'].forEach(eventName => {
+      uploadSection.addEventListener(eventName, () => {
+        uploadSection.classList.add('dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      uploadSection.addEventListener(eventName, () => {
+        uploadSection.classList.remove('dragover');
+      });
+    });
+
+    // Handle dropped files
+    uploadSection.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      handleFiles(files);
+    });
+
+    // Handle pasted images
+    document.addEventListener('paste', (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const blob = items[i].getAsFile();
+          handleFiles([blob]);
+          break;
+        }
+      }
+    });
+
+    // Change image button
+    changeImageBtn.addEventListener('click', () => {
+      selectedFile = null;
+      imagePreview.classList.remove('show');
+      uploadPrompt.style.display = 'block';
+      changeImageBtn.style.display = 'none';
+      uploadSection.classList.remove('has-image');
+      updateMintButton();
+    });
+
+    function handleFiles(files) {
+      if (files.length === 0) return;
+      
+      const file = files[0];
+      if (!file.type.startsWith('image/')) {
+        showStatus('❌ Please upload an image file', 'error');
+        return;
+      }
+
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        imagePreview.classList.add('show');
+        uploadPrompt.style.display = 'none';
+        changeImageBtn.style.display = 'block';
+        uploadSection.classList.add('has-image');
+        updateMintButton();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Chain selection
+    baseBtn.addEventListener('click', () => {
+      selectedChain = 'base';
+      baseBtn.classList.add('selected');
+      arbBtn.classList.remove('selected');
+      updateMintButton();
+    });
+
+    arbBtn.addEventListener('click', () => {
+      selectedChain = 'arbitrum';
+      arbBtn.classList.add('selected');
+      baseBtn.classList.remove('selected');
+      updateMintButton();
+    });
+
+    function updateMintButton() {
+      if (selectedFile && selectedChain) {
+        mintBtn.disabled = false;
+        mintBtn.textContent = `Mint on ${selectedChain === 'base' ? 'Base' : 'Arbitrum'} (FREE)`;
+      } else {
+        mintBtn.disabled = true;
+        mintBtn.textContent = 'Select Image & Chain to Mint';
+      }
+    }
+
+    function showStatus(message, type) {
+      statusDiv.innerHTML = message;
+      statusDiv.className = `status show ${type}`;
+    }
+
+    function hideStatus() {
+      statusDiv.classList.remove('show');
+    }
+
+    // Upload to Pinata directly from browser
+    async function uploadToPinata(file, metadata) {
+      try {
+        // Step 1: Upload image file
+        showStatus('<span class="loader"></span>Uploading image to IPFS...', 'loading');
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const imageResponse = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${PINATA_JWT}`
+          },
+          body: formData
+        });
+
+        if (!imageResponse.ok) {
+          const errorData = await imageResponse.json().catch(() => ({}));
+          throw new Error(errorData.error?.details || 'Failed to upload image');
+        }
+
+        const imageData = await imageResponse.json();
+        const imageIpfsHash = imageData.IpfsHash;
+
+        // Step 2: Create and upload metadata JSON
+        showStatus('<span class="loader"></span>Creating metadata...', 'loading');
+        
+        const nftMetadata = {
+          name: metadata.name || 'My NFT',
+          description: metadata.description || 'Minted via Farcaster Mini App',
+          image: `ipfs://${imageIpfsHash}`,
+          attributes: [
+            { trait_type: 'Chain', value: selectedChain === 'base' ? 'Base' : 'Arbitrum' },
+            { trait_type: 'Minted Via', value: 'Farcaster Mini App' }
+          ]
+        };
+
+        const metadataResponse = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${PINATA_JWT}`
+          },
+          body: JSON.stringify({
+            pinataContent: nftMetadata,
+            pinataMetadata: {
+              name: `${metadata.name || 'NFT'}_metadata.json`
+            }
+          })
+        });
+
+        if (!metadataResponse.ok) {
+          const errorData = await metadataResponse.json().catch(() => ({}));
+          throw new Error(errorData.error?.details || 'Failed to upload metadata');
+        }
+
+        const metadataData = await metadataResponse.json();
+        return `ipfs://${metadataData.IpfsHash}`;
+      } catch (error) {
+        console.error('Pinata upload error:', error);
+        throw error;
+      }
+    }
+
+    // Mint NFT
+    mintBtn.addEventListener('click', async () => {
+      if (!selectedFile || !selectedChain) return;
+
+      hideStatus();
+      mintBtn.disabled = true;
+
+      try {
+        // Check for Pinata JWT
+        if (PINATA_JWT === 'YOUR_PINATA_JWT_HERE') {
+          showStatus('❌ Please configure your Pinata JWT token in the code', 'error');
+          mintBtn.disabled = false;
+          return;
+        }
+
+        // Upload to Pinata
+        const tokenURI = await uploadToPinata(selectedFile, {
+          name: nftNameInput.value.trim() || 'My NFT',
+          description: `Minted on ${selectedChain === 'base' ? 'Base' : 'Arbitrum'}`
+        });
+
+        // Switch to correct chain
+        showStatus('<span class="loader"></span>Switching network...', 'loading');
+        const chainId = selectedChain === 'base' ? base.id : arbitrum.id;
+        await switchChain(config, { chainId });
+
+        // Mint NFT (FREE - no value sent since mintPrice is 0)
+        showStatus('<span class="loader"></span>Minting your NFT...', 'loading');
+        const txHash = await writeContract(config, {
+          address: CONTRACTS[selectedChain],
+          abi: NFT_ABI,
+          functionName: 'mint',
+          args: [tokenURI]
+          // No value parameter needed - mint is free!
+        });
+
+        const explorerUrl = selectedChain === 'base' 
+          ? `https://basescan.org/tx/${txHash}`
+          : `https://arbiscan.io/tx/${txHash}`;
+
+        showStatus(
+          `🎉 NFT Minted Successfully!<br><a href="${explorerUrl}" target="_blank">View Transaction</a>`,
+          'success'
+        );
+
+        // Reset form after success
+        setTimeout(() => {
+          selectedFile = null;
+          selectedChain = null;
+          nftNameInput.value = '';
+          imagePreview.classList.remove('show');
+          uploadPrompt.style.display = 'block';
+          changeImageBtn.style.display = 'none';
+          uploadSection.classList.remove('has-image');
+          baseBtn.classList.remove('selected');
+          arbBtn.classList.remove('selected');
+          updateMintButton();
+          hideStatus();
+        }, 5000);
+
+      } catch (error) {
+        console.error('Minting error:', error);
+        let errorMsg = 'Failed to mint NFT';
+        if (error.message.includes('User rejected')) {
+          errorMsg = 'Transaction rejected by user';
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
+        showStatus(`❌ Error: ${errorMsg}`, 'error');
+        updateMintButton();
+      }
+    });
+  </script>
+</body>
+</html>
