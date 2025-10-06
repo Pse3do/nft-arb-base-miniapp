@@ -683,8 +683,10 @@
         const { nftName, openSeaUrl, imageUrl, chain } = mintedNFTData;
 
         await sdk.actions.composeCast({
-          text: `Just minted "${nftName}" on ${chain} using the NFT Minter mini app! 🎨✨`,
-          embeds: [openSeaUrl, imageUrl]
+          text: `Why Settle for Fleeting Storage? Immortalize Your Memories Onchain Forever!
+
+                 Built by @oce3n`,
+          embeds: ["https://nft-arb-base-miniapp.vercel.app", imageUrl]
         });
 
         showStatus('Cast composer opened!', 'success');
