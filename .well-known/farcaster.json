@@ -8,7 +8,7 @@
     "imageUrl": "https://nft-arb-base-miniapp.vercel.app/image.png",
     "buttonTitle": "ONCHAIN YOUR MEMORY",
     "splashImageUrl": "https://nft-arb-base-miniapp.vercel.app/icon.png",
-    "splashBackgroundColor": "#ffd753",
+    "splashBackgroundColor": "#2c67f2",
     "webhookUrl": "https://nft-arb-base-miniapp.vercel.app/"
   }
 }
