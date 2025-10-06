@@ -1,14 +1,20 @@
 {
-  "accountAssociation": {},
   "frame": {
-    "version": "1",
     "name": "Snapshot",
+    "version": "1",
     "iconUrl": "https://nft-arb-base-miniapp.vercel.app/icon.png",
     "homeUrl": "https://nft-arb-base-miniapp.vercel.app",
     "imageUrl": "https://nft-arb-base-miniapp.vercel.app/image.png",
-    "buttonTitle": "ONCHAIN YOUR MEMORY",
     "splashImageUrl": "https://nft-arb-base-miniapp.vercel.app/icon.png",
     "splashBackgroundColor": "#2c67f2",
-    "webhookUrl": "https://nft-arb-base-miniapp.vercel.app/"
+    "webhookUrl": "https://nft-arb-base-miniapp.vercel.app/api/webhook",
+    "subtitle": "Connect and share instantly",
+    "description": "Store your memory permanently onchain.",
+    "primaryCategory": "social"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjI4NDcxMywidHlwZSI6ImF1dGgiLCJrZXkiOiIweDk1ZTlEQTkxQjk0YWU3ZERCNEMyMjQ0YmQ1RjY5OTJjMzExMTY4NzkifQ",
+    "payload": "eyJkb21haW4iOiJuZnQtYXJiLWJhc2UtbWluaWFwcC52ZXJjZWwuYXBwIn0",
+    "signature": "y53vBZbtp/nlXHGjOuswJQJg7WWAH/nLw8FjRWLqF3MaWnhwL0KqQgnilimCPbdx9JbfosB5DxHTs3oK84jy1hs="
   }
 }
