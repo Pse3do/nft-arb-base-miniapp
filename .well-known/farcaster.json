@@ -2,11 +2,11 @@
   "accountAssociation": {},
   "frame": {
     "version": "1",
-    "name": "snapshot",
+    "name": "Snapshot",
     "iconUrl": "https://nft-arb-base-miniapp.vercel.app/icon.png",
     "homeUrl": "https://nft-arb-base-miniapp.vercel.app",
     "imageUrl": "https://nft-arb-base-miniapp.vercel.app/image.png",
-    "buttonTitle": "Mint NFT",
+    "buttonTitle": "ONCHAIN YOUR MEMORY",
     "splashImageUrl": "https://nft-arb-base-miniapp.vercel.app/icon.png",
     "splashBackgroundColor": "#ffd753",
     "webhookUrl": "https://nft-arb-base-miniapp.vercel.app/"
