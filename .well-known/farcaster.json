@@ -6,9 +6,9 @@
     "iconUrl": "https://nft-arb-base-miniapp.vercel.app/icon.png",
     "homeUrl": "https://nft-arb-base-miniapp.vercel.app",
     "imageUrl": "https://nft-arb-base-miniapp.vercel.app/image.png",
-    "buttonTitle": "",
+    "buttonTitle": "Mint NFT",
     "splashImageUrl": "https://nft-arb-base-miniapp.vercel.app/icon.png",
     "splashBackgroundColor": "#ffd753",
-    "webhookUrl": ""
+    "webhookUrl": "https://nft-arb-base-miniapp.vercel.app/"
   }
 }

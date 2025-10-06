@@ -276,16 +276,6 @@
       100% { transform: rotate(360deg); }
     }
 
-    .info-box {
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      border-radius: 8px;
-      padding: 10px;
-      margin-top: 16px;
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
     .warning-box {
       background: rgba(239, 68, 68, 0.15);
       border: 2px solid rgba(239, 68, 68, 0.4);
@@ -362,13 +352,11 @@
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
     <div class="header">
       <h1>🎨 NFT Minter</h1>
       <div class="creator-tag">by @oce3n</div>
     </div>
 
-    <!-- Warning Box -->
     <div class="warning-box">
       <div class="warning-icon">⚠️</div>
       <div>
@@ -376,7 +364,6 @@
       </div>
     </div>
 
-    <!-- Upload Section -->
     <div class="upload-section" id="uploadSection">
       <div id="uploadPrompt">
         <div class="upload-icon">📸</div>
@@ -389,7 +376,6 @@
       <input type="file" id="fileInput" accept="image/*" style="display:none;" />
     </div>
 
-    <!-- NFT Name Input -->
     <input 
       type="text" 
       id="nftName" 
@@ -397,7 +383,6 @@
       placeholder="NFT Name (optional)"
     />
 
-    <!-- Chain Selector -->
     <div class="chain-selector">
       <button class="chain-btn" id="arbBtn" data-chain="arbitrum">
         <img src="arb.png" alt="Arbitrum" style="width: 40px; height: 40px; object-fit: contain;">
@@ -409,20 +394,16 @@
       </button>
     </div>
 
-    <!-- Mint Button -->
     <button class="mint-btn" id="mintBtn" disabled>
       Select Image & Chain to Mint
     </button>
 
-    <!-- Share Button -->
     <button class="share-btn" id="shareBtn">
       🎉 Share Your NFT on Farcaster
     </button>
 
-    <!-- Status -->
     <div class="status" id="status"></div>
 
-    <!-- Footer -->
     <div class="footer">
       Follow Dev: <a href="https://farcaster.xyz/oce3n" target="_blank">@oce3n</a>
     </div>
@@ -436,30 +417,11 @@
     import { arbitrum, base } from 'https://esm.sh/@wagmi/core/chains';
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
 
-     sdk.actions.ready({ disableNativeGestures: true }).then(() => {
-      console.log("Farcaster MiniApp ready");
-      message.innerText = "Ready to connect!";
-      
-      // Show rules on first visit
-      const hasSeenRules = localStorage.getItem('hasSeenRules');
-      if (!hasSeenRules) {
-        setTimeout(() => {
-          document.getElementById('rulesOverlay').classList.remove('hidden');
-        }, 300);
-      }
-    }).catch(err => {
-      console.error("SDK ready error:", err);
-      message.innerText = "SDK initialization failed";
-      showToast("Failed to initialize. Try reloading.");
-    });
-
-    // Contract addresses
     const CONTRACTS = {
       base: '0x23Bbf3b4782A9Feac435F811b91E58BBcF7cC774',
       arbitrum: '0x4CFEFB86cb8Aa8dB67b9b2A8083647e4480f086d'
     };
 
-    // Simplified ERC721 ABI - just the mint function (payable but price is 0)
     const NFT_ABI = [
       {
         "inputs": [{"internalType": "string", "name": "tokenURI_", "type": "string"}],
@@ -470,17 +432,13 @@
       }
     ];
 
-    // ===== PINATA CONFIGURATION =====
     const PINATA_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI4MTIzZjk3ZC1kMjA0LTQwYTctYTQ2Yy1iMTQzOTUzZDY4OWEiLCJlbWFpbCI6ImFpYnM4ODhAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImZlZTkzZTk4YzdiOWJkZmM2M2ViIiwic2NvcGVkS2V5U2VjcmV0IjoiYzA2ZmM1Y2IzYWQ2YTg5NDQ2Yjg0M2E5MTU1YTRjMGM5ODk5MDVkMmVhNzFjOTA4NmQ3ZTYzYmJkMDU3YmNiMyIsImV4cCI6MTc5MTI2MzY0NX0.Ccavx6QYvvpPWOgiky9l-WfBNYm6uJCTh514tto242Q';
 
-    // Wagmi config
     const config = createConfig({
       chains: [arbitrum, base],
       transports: { [arbitrum.id]: http(), [base.id]: http() }
     });
-    await connect(config, { connector: farcasterMiniApp() }).catch(() => {});
 
-    // UI Elements
     const uploadSection = document.getElementById('uploadSection');
     const uploadPrompt = document.getElementById('uploadPrompt');
     const imagePreview = document.getElementById('imagePreview');
@@ -496,15 +454,55 @@
 
     let selectedFile = null;
     let selectedChain = null;
-    let mintedNFTData = null; // Store NFT data after minting
+    let mintedNFTData = null;
+    let isConnected = false;
 
-    // Gallery/File picker button
+    function showStatus(message, type) {
+      statusDiv.innerHTML = message;
+      statusDiv.className = `status show ${type}`;
+    }
+
+    function hideStatus() {
+      statusDiv.classList.remove('show');
+    }
+
+    console.log('Initializing Farcaster SDK...');
+    
+    sdk.actions.ready({ disableNativeGestures: true })
+      .then(async () => {
+        console.log("Farcaster MiniApp SDK ready!");
+        showStatus('App ready! Connecting wallet...', 'success');
+        
+        try {
+          await connect(config, {
+            connector: farcasterMiniApp(),
+            chainId: arbitrum.id
+          });
+          
+          const account = getAccount(config);
+          if (account?.address) {
+            isConnected = true;
+            console.log('Wallet connected:', account.address);
+            showStatus(`Connected: ${account.address.slice(0, 6)}...${account.address.slice(-4)}`, 'success');
+            setTimeout(() => hideStatus(), 3000);
+          } else {
+            showStatus('Wallet connection incomplete', 'error');
+          }
+        } catch (err) {
+          console.error('Wallet connection failed:', err);
+          showStatus('Wallet connection failed. Please try again.', 'error');
+        }
+      })
+      .catch(err => {
+        console.error("SDK initialization failed:", err);
+        showStatus('Failed to initialize. Please reopen in Warpcast.', 'error');
+      });
+
     chooseFileBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       fileInput.click();
     });
 
-    // Handle file input from gallery
     fileInput.addEventListener('change', (e) => {
       const files = e.target.files;
       if (files.length > 0) {
@@ -512,7 +510,6 @@
       }
     });
 
-    // Prevent default drag behaviors
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
       uploadSection.addEventListener(eventName, preventDefaults, false);
       document.body.addEventListener(eventName, preventDefaults, false);
@@ -523,7 +520,6 @@
       e.stopPropagation();
     }
 
-    // Highlight drop area
     ['dragenter', 'dragover'].forEach(eventName => {
       uploadSection.addEventListener(eventName, () => {
         uploadSection.classList.add('dragover');
@@ -536,14 +532,12 @@
       });
     });
 
-    // Handle dropped files
     uploadSection.addEventListener('drop', (e) => {
       const dt = e.dataTransfer;
       const files = dt.files;
       handleFiles(files);
     });
 
-    // Handle pasted images
     document.addEventListener('paste', (e) => {
       const items = e.clipboardData?.items;
       if (!items) return;
@@ -557,7 +551,6 @@
       }
     });
 
-    // Change image button
     changeImageBtn.addEventListener('click', () => {
       selectedFile = null;
       imagePreview.classList.remove('show');
@@ -572,7 +565,7 @@
       
       const file = files[0];
       if (!file.type.startsWith('image/')) {
-        showStatus('❌ Please upload an image file', 'error');
+        showStatus('Please upload an image file', 'error');
         return;
       }
 
@@ -589,7 +582,6 @@
       reader.readAsDataURL(file);
     }
 
-    // Chain selection
     baseBtn.addEventListener('click', () => {
       selectedChain = 'base';
       baseBtn.classList.add('selected');
@@ -614,19 +606,8 @@
       }
     }
 
-    function showStatus(message, type) {
-      statusDiv.innerHTML = message;
-      statusDiv.className = `status show ${type}`;
-    }
-
-    function hideStatus() {
-      statusDiv.classList.remove('show');
-    }
-
-    // Upload to Pinata directly from browser
     async function uploadToPinata(file, metadata) {
       try {
-        // Step 1: Upload image file
         showStatus('<span class="loader"></span>Uploading image to IPFS...', 'loading');
         
         const formData = new FormData();
@@ -648,7 +629,6 @@
         const imageData = await imageResponse.json();
         const imageIpfsHash = imageData.IpfsHash;
 
-        // Step 2: Create and upload metadata JSON
         showStatus('<span class="loader"></span>Creating metadata...', 'loading');
         
         const nftMetadata = {
@@ -693,7 +673,6 @@
       }
     }
 
-    // Share NFT on Farcaster
     shareBtn.addEventListener('click', async () => {
       if (!mintedNFTData) return;
 
@@ -708,17 +687,16 @@
           embeds: [openSeaUrl, imageUrl]
         });
 
-        showStatus('✅ Cast composer opened!', 'success');
+        showStatus('Cast composer opened!', 'success');
         setTimeout(() => hideStatus(), 3000);
       } catch (error) {
         console.error('Share error:', error);
-        showStatus('❌ Failed to open cast composer', 'error');
+        showStatus('Failed to open cast composer', 'error');
       } finally {
         shareBtn.disabled = false;
       }
     });
 
-    // Mint NFT
     mintBtn.addEventListener('click', async () => {
       if (!selectedFile || !selectedChain) return;
 
@@ -727,25 +705,21 @@
       mintBtn.disabled = true;
 
       try {
-        // Check for Pinata JWT
         if (PINATA_JWT === 'YOUR_PINATA_JWT_HERE') {
-          showStatus('❌ Please configure your Pinata JWT token in the code', 'error');
+          showStatus('Please configure your Pinata JWT token in the code', 'error');
           mintBtn.disabled = false;
           return;
         }
 
-        // Upload to Pinata
         const uploadResult = await uploadToPinata(selectedFile, {
           name: nftNameInput.value.trim() || 'My NFT',
           description: `Minted on ${selectedChain === 'base' ? 'Base' : 'Arbitrum'}`
         });
 
-        // Switch to correct chain
         showStatus('<span class="loader"></span>Switching network...', 'loading');
         const chainId = selectedChain === 'base' ? base.id : arbitrum.id;
         await switchChain(config, { chainId });
 
-        // Mint NFT (FREE - no value sent since mintPrice is 0)
         showStatus('<span class="loader"></span>Minting your NFT...', 'loading');
         const txHash = await writeContract(config, {
           address: CONTRACTS[selectedChain],
@@ -754,11 +728,9 @@
           args: [uploadResult.tokenURI]
         });
 
-        // Get user's address to construct OpenSea link
         const userAccount = getAccount(config);
         const userAddress = userAccount?.address;
 
-        // Construct OpenSea links
         const openSeaUrl = selectedChain === 'base' 
           ? `https://opensea.io/${userAddress}?tab=collected`
           : `https://opensea.io/${userAddress}?tab=collected&chain=arbitrum`;
@@ -767,7 +739,6 @@
           ? `https://basescan.org/tx/${txHash}`
           : `https://arbiscan.io/tx/${txHash}`;
 
-        // Store minted NFT data for sharing
         mintedNFTData = {
           nftName: nftNameInput.value.trim() || 'My NFT',
           openSeaUrl: openSeaUrl,
@@ -780,10 +751,8 @@
           'success'
         );
 
-        // Show share button
         shareBtn.classList.add('show');
 
-        // Reset form after delay (but keep share button visible)
         setTimeout(() => {
           selectedFile = null;
           selectedChain = null;
@@ -805,7 +774,7 @@
         } else if (error.message) {
           errorMsg = error.message;
         }
-        showStatus(`❌ Error: ${errorMsg}`, 'error');
+        showStatus(`Error: ${errorMsg}`, 'error');
         updateMintButton();
       }
     });
