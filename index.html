@@ -35,6 +35,42 @@
       max-width: 390px;
       margin-inline: auto;
       padding: 20px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    body.light-mode {
+      background: linear-gradient(135deg, #a8b5ff 0%, #c9a8e8 100%);
+      color: #1a1a1a;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    body.light-mode .theme-toggle {
+      background: rgba(0, 0, 0, 0.1);
+      border-color: rgba(0, 0, 0, 0.2);
     }
 
     .container {
@@ -71,6 +107,11 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+    }
+
+    body.light-mode .upload-section {
+      background: rgba(255, 255, 255, 0.4);
+      border-color: rgba(0, 0, 0, 0.2);
     }
 
     .upload-section.dragover {
@@ -124,8 +165,18 @@
       transition: border-color 0.3s ease;
     }
 
+    body.light-mode .nft-name-input {
+      background: rgba(255, 255, 255, 0.6);
+      border-color: rgba(0, 0, 0, 0.2);
+      color: #1a1a1a;
+    }
+
     .nft-name-input::placeholder {
       color: rgba(255, 255, 255, 0.6);
+    }
+
+    body.light-mode .nft-name-input::placeholder {
+      color: rgba(0, 0, 0, 0.5);
     }
 
     .nft-name-input:focus {
@@ -154,6 +205,12 @@
       flex-direction: column;
       align-items: center;
       gap: 6px;
+    }
+
+    body.light-mode .chain-btn {
+      background: rgba(255, 255, 255, 0.4);
+      border-color: rgba(0, 0, 0, 0.2);
+      color: #1a1a1a;
     }
 
     .chain-btn:hover {
@@ -348,9 +405,21 @@
     .change-image-btn:hover {
       background: rgba(255, 255, 255, 0.2);
     }
+
+    body.light-mode .change-image-btn {
+      background: rgba(0, 0, 0, 0.1);
+      border-color: rgba(0, 0, 0, 0.2);
+      color: #1a1a1a;
+    }
+
+    body.light-mode .change-image-btn:hover {
+      background: rgba(0, 0, 0, 0.15);
+    }
   </style>
 </head>
 <body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+  
   <div class="container">
     <div class="header">
       <h1>🎨 Snapshot</h1>
@@ -457,6 +526,22 @@
     let selectedChain = null;
     let mintedNFTData = null;
     let isConnected = false;
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-mode');
+      themeToggle.textContent = '☀️';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      themeToggle.textContent = isLight ? '☀️' : '🌙';
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    });
 
     function showStatus(message, type) {
       statusDiv.innerHTML = message;
