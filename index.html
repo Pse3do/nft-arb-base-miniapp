@@ -402,6 +402,7 @@
       🎉 Share Your NFT on Farcaster
     </button>
 
+
     <div class="status" id="status"></div>
 
     <div class="footer">
@@ -469,54 +470,35 @@
 
     console.log('Initializing Farcaster SDK...');
     
-  sdk.actions.ready({ disableNativeGestures: true })
-  .then(async () => {
-    console.log("Farcaster MiniApp SDK ready!");
-    showStatus('App ready! Connecting wallet...', 'success');
-    
-    try {
-      await connect(config, {
-        connector: farcasterMiniApp(),
-        chainId: arbitrum.id
-      });
-      
-      const account = getAccount(config);
-      if (account?.address) {
-        isConnected = true;
-        console.log('Wallet connected:', account.address);
-        showStatus(`Connected: ${account.address.slice(0, 6)}...${account.address.slice(-4)}`, 'success');
-        setTimeout(() => hideStatus(), 3000);
-      } else {
-        showStatus('Wallet connection incomplete', 'error');
-      }
-
-      // ADD THIS CODE HERE 👇
-      // Auto-prompt to add app (only once per session)
-      const hasPromptedAddApp = sessionStorage.getItem('hasPromptedAddApp');
-      if (!hasPromptedAddApp) {
-        setTimeout(async () => {
-          try {
-            console.log('Auto-prompting add app...');
-            await sdk.actions.addMiniApp();
-            sessionStorage.setItem('hasPromptedAddApp', 'true');
-            console.log('App added successfully!');
-          } catch (error) {
-            console.log('Add app prompt dismissed or failed:', error.name);
-            sessionStorage.setItem('hasPromptedAddApp', 'true');
+    sdk.actions.ready({ disableNativeGestures: true })
+      .then(async () => {
+        console.log("Farcaster MiniApp SDK ready!");
+        showStatus('App ready! Connecting wallet...', 'success');
+        
+        try {
+          await connect(config, {
+            connector: farcasterMiniApp(),
+            chainId: arbitrum.id
+          });
+          
+          const account = getAccount(config);
+          if (account?.address) {
+            isConnected = true;
+            console.log('Wallet connected:', account.address);
+            showStatus(`Connected: ${account.address.slice(0, 6)}...${account.address.slice(-4)}`, 'success');
+            setTimeout(() => hideStatus(), 3000);
+          } else {
+            showStatus('Wallet connection incomplete', 'error');
           }
-        }, 2000); // Wait 2 seconds after app loads
-      }
-      // END OF NEW CODE 👆
-
-    } catch (err) {
-      console.error('Wallet connection failed:', err);
-      showStatus('Wallet connection failed. Please try again.', 'error');
-    }
-  })
-  .catch(err => {
-    console.error("SDK initialization failed:", err);
-    showStatus('Failed to initialize. Please reopen in Warpcast.', 'error');
-  });
+        } catch (err) {
+          console.error('Wallet connection failed:', err);
+          showStatus('Wallet connection failed. Please try again.', 'error');
+        }
+      })
+      .catch(err => {
+        console.error("SDK initialization failed:", err);
+        showStatus('Failed to initialize. Please reopen in Warpcast.', 'error');
+      });
 
       
 
@@ -719,7 +701,8 @@ Built by @oce3n `,
         shareBtn.disabled = false;
       }
     });
-     
+   
+
     mintBtn.addEventListener('click', async () => {
       if (!selectedFile || !selectedChain) return;
 
