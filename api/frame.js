@@ -1,5 +1,4 @@
-// Save this as: api/frame.js in your Vercel project
-
+// api/frame.js
 export default function handler(req, res) {
   const { img, name, chain } = req.query;
   
