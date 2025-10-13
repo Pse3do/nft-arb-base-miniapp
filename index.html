@@ -792,7 +792,7 @@ body.light-mode .theme-toggle:hover {
         await sdk.actions.composeCast({
           text: `Just minted "${nftName}" on ${chain}! 🎨✨
 
-Immortalize your memories onchain forever. Create yours 👇
+Immortalize your memories onchain forever on @base.base.eth and @arbitrum! Create yours 👇
 Built by @oce3n`,
           embeds: [imageUrl, "https://nft-arb-base-miniapp.vercel.app"]
         });
@@ -806,7 +806,7 @@ Built by @oce3n`,
         shareBtn.disabled = false;
       }
     });
-    
+
     mintBtn.addEventListener('click', async () => {
       if (!selectedFile || !selectedChain) return;
 
