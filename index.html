@@ -788,11 +788,12 @@ body.light-mode .theme-toggle:hover {
         showStatus('<span class="loader"></span>Opening cast composer...', 'loading');
 
         const { nftName, openSeaUrl, imageUrl, chain } = mintedNFTData;
+        const embedUrl = `https://nft-arb-base-miniapp.vercel.app/api/meta.html?nftName=${encodeURIComponent(nftName)}&imageUrl=${encodeURIComponent(imageUrl)}&chain=${chain}`;
 
         await sdk.actions.composeCast({
           text: `Why Settle for Fleeting Storage? Immortalize Your Memories Onchain Forever on @base.base.eth and @arbitrum!
 Built by @oce3n `,
-          embeds: ["https://nft-arb-base-miniapp.vercel.app"]
+          embeds: [embedUrl]
         });
 
         showStatus('Cast composer opened!', 'success');
